@@ -1,8 +1,6 @@
-# libigl example project
-
-A blank project example showing how to use libigl and cmake. Feel free and
-encouraged to copy or fork this project as a way of starting a new personal
-project using libigl.
+# XPBD 
+C++ implementation of XPBD: Position-Based Simulation of Compliant Constrained Dynamics
+http://mmacklin.com/xpbd.pdf
 
 ## See the tutorial first
 
@@ -18,15 +16,14 @@ Compile this project using the standard cmake routine:
     cmake ..
     make
 
-This should find and build the dependencies and create a `example_bin` binary.
+This should find and build the dependencies and create a `XPBD` binary.
 
 ## Run
 
 From within the `build` directory just issue:
 
-    ./example_bin
+    ./XPBD
 
-A glfw app should launch displaying a 3D cube.
 
 ## Dependencies
 
@@ -41,4 +38,4 @@ We recommend you to install libigl using git via:
     cd ..
 
 If you have installed libigl at `/path/to/libigl/` then a good place to clone
-this library is `/path/to/libigl-example-project/`.
+this library is `/path/to/XPBD/`.
