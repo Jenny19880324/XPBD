@@ -3,6 +3,7 @@
 #include "XPBDEnergyType.h"
 #include <Eigen/Core>
 #include <Eigen/Sparse>
+#include <unordered_set>
 
 namespace xpbd
 {
@@ -28,17 +29,17 @@ namespace xpbd
 		double ym;
 		
 		Eigen::MatrixXd f_ext, vel, V;
-		Eigen::VectorXi b;
 		Eigen::VectorXd lambda_iter;
 		Eigen::SparseMatrix<double> M, M_inv;
+		std::unordered_set<int> b;
 		
 		XPBDData() :
 			n(0),
 			max_iter(20),
 			energy(XPBD_ENERGY_TYPE_DEFAULT),
 			f_ext(),
-			h(0.033),
-			ym(1.0),
+			h(0.01),
+			ym(1),
 			b(),
 			dim(2)
 		{
@@ -59,14 +60,13 @@ namespace xpbd
 	template<
 		typename DerivedV,
 		typename DerivedF,
-		typename DerivedE,
-		typename Derivedb>
+		typename DerivedE>
 		IGL_INLINE bool xpbd_precomputation(
 			const Eigen::PlainObjectBase<DerivedV> & V,
 			const Eigen::PlainObjectBase<DerivedF> & F,
 			const Eigen::PlainObjectBase<DerivedE> & E,
 			const int dim,
-			const Eigen::PlainObjectBase<Derivedb> & b,
+			const std::unordered_set<int> & b,
 			XPBDData & data);
 
 
@@ -85,12 +85,10 @@ namespace xpbd
 	//    bc    #b by dim list of boundary conditions
 	template <
 		typename DerivedV,
-		typename DerivedE,
-		typename Derivedbc >
+		typename DerivedE>
 		IGL_INLINE bool xpbd_solve(
 			Eigen::PlainObjectBase<DerivedV> & U,
 			const Eigen::PlainObjectBase<DerivedE> & E,
-			const Eigen::PlainObjectBase<Derivedbc> & bc,
 			XPBDData & data
 			);
 

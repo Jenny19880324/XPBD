@@ -19,6 +19,7 @@ template <
 	
 	V.resize(m * n, 3);
 	F.resize((m - 1)*(n-1) * 2, 3);
+	//E.resize((m - 1)*n + (n - 1)*m, 2);
 	E.resize((m - 1)*n + (n - 1)*m + 2 * (m - 1)*(n - 1), 2);
 
 	// generate the vertices

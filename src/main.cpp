@@ -1,6 +1,7 @@
 #include <igl/opengl/glfw/Viewer.h>
 #include "meshgrid.h"
 #include "xpbd.h"
+#include <unordered_set>
 
 Eigen::MatrixXd V, U;
 Eigen::MatrixXi F, E;
@@ -41,13 +42,18 @@ int main(int argc, char *argv[])
 	igl::meshgrid(x, y, V, F, E);
 
 	U = V;
-	if (!xpbd::xpbd_precomputation(V, F, E, 3, Eigen::VectorXi(), xpbd_data)) {
+
+	std::unordered_set<int> b = { (rows - 1) * cols, rows * cols - 1 };
+	if (!xpbd::xpbd_precomputation(V, F, E, 3, b, xpbd_data)) {
 		std::cerr << "xpbd_precomputation failed." << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	const int n = V.rows();
 	xpbd_data.f_ext = xpbd_data.M * Eigen::RowVector3d(0, -9.8, 0).replicate(n, 1);
+	for (int i = 0; i < n; i++) {
+		xpbd_data.vel.row(i) = V(i, 1) * Eigen::RowVector3d(0., 0., 2.);
+	}
 
 	// Plot the mesh
 	igl::opengl::glfw::Viewer viewer;
@@ -59,7 +65,7 @@ int main(int argc, char *argv[])
 	{
 		if (viewer.core.is_animating)
 		{
-			xpbd::xpbd_solve(U, E, Eigen::MatrixXd(), xpbd_data);
+			xpbd::xpbd_solve(U, E, xpbd_data);
 			viewer.data().set_vertices(U);
 			viewer.data().compute_normals();
 		}
