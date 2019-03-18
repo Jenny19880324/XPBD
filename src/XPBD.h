@@ -20,7 +20,6 @@ namespace xpbd
 		// b               list of boundary indices into V
 		// dim             dimension being used for solving
 
-		bool with_dynamics;
 		int n;
 		int dim;
 		int max_iter;
@@ -28,13 +27,15 @@ namespace xpbd
 		double h;
 		double ym;
 		
-		Eigen::MatrixXd f_ext, vel;
+		Eigen::MatrixXd f_ext, vel, V;
 		Eigen::VectorXi b;
+		Eigen::VectorXd lambda_iter;
+		Eigen::SparseMatrix<double> M, M_inv;
 		
 		XPBDData() :
 			n(0),
+			max_iter(20),
 			energy(XPBD_ENERGY_TYPE_DEFAULT),
-			with_dynamics(false),
 			f_ext(),
 			h(0.033),
 			ym(1.0),
@@ -43,6 +44,31 @@ namespace xpbd
 		{
 		};
 	};
+
+	// Compute necessary information to start using xpbd 
+	//
+	// Inputs:
+	//    V     #V by dim list of mesh positions
+	//    F     #F by simplex-size list of triangle|tet indices into V
+	//    dim   dimension being used at solve time.
+	//          For deformation usually dim = V.cols(), 
+	//          for surface parameterization V.cols() = 3 and dim = 2
+	//    b     #b list of "boundary" fixed vertex indices into V
+	// Outputs:
+	//   data   struct containing necessary precomputation
+	template<
+		typename DerivedV,
+		typename DerivedF,
+		typename DerivedE,
+		typename Derivedb>
+		IGL_INLINE bool xpbd_precomputation(
+			const Eigen::PlainObjectBase<DerivedV> & V,
+			const Eigen::PlainObjectBase<DerivedF> & F,
+			const Eigen::PlainObjectBase<DerivedE> & E,
+			const int dim,
+			const Eigen::PlainObjectBase<Derivedb> & b,
+			XPBDData & data);
+
 
 	// update vertex positions with a solver in Gauss-Seidel fashion
 	// Algorithm 1 XPBD simulation loop described in
@@ -59,15 +85,13 @@ namespace xpbd
 	//    bc    #b by dim list of boundary conditions
 	template <
 		typename DerivedV,
-		typename DerivedF,
-		typename Derivedb,
+		typename DerivedE,
 		typename Derivedbc >
 		IGL_INLINE bool xpbd_solve(
-			Eigen::PlainObjectBase<DerivedV> & V,
-			const Eigen::PlainObjectBase<DerivedF> & F,
-			const int dim,
-			const Eigen::PlainObjectBase<Derivedb> & b,
-			const Eigen::PlainObjectBase<Derivedbc> & bc
+			Eigen::PlainObjectBase<DerivedV> & U,
+			const Eigen::PlainObjectBase<DerivedE> & E,
+			const Eigen::PlainObjectBase<Derivedbc> & bc,
+			XPBDData & data
 			);
 
 } // namespace XPBD
